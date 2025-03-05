@@ -2,6 +2,7 @@
     "name": "scimall/acad-sdk",
     "description": "科界学会会员会议系统sdk",
     "type": "library",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Scimall\\Acad\\": "src/"
@@ -9,10 +10,13 @@
     },
     "authors": [
         {
-            "name": "田玉星",
-            "email": "624239110@qq.com"
+            "name": "Tian.Yuxing",
+            "email": "tian.yuxing@scimall.org.cn"
         }
     ],
+
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "php": "^7.3"
+    }
 }
