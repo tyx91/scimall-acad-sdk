@@ -1,0 +1,18 @@
+{
+    "name": "scimall/acad-sdk",
+    "description": "科界学会会员会议系统sdk",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Scimall\\Acad\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "田玉星",
+            "email": "624239110@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
