@@ -9,7 +9,7 @@ $client = new Client($appKey, $apiUrl);
 try {
     // 示例1：获取用户身份信息
     $params = [
-        'phone' => 'xxxxxx',
+        'phone' => 'XXXXX',
         'email' => 'test@example.com'
     ];
     $result = $client->getUserIdentity($params);

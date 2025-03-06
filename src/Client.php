@@ -17,13 +17,6 @@ class Client
         $this->debug = $debug;
     }
 
-    /**
-     * 用户登录
-     */
-    public function login(array $params): array
-    {
-        return $this->request('login', $params, 'POST');
-    }
 
     /**
      * 获取用户信息
@@ -78,16 +71,17 @@ class Client
      */
     private function request(string $action, array $params, string $method = 'GET'): array
     {
-        $getData = array_merge($params, [
+        $getData = [
             'action' => $action,
             'timestamp' => time()
-        ]);
-
-        // 生成签名
+        ];
+        if(strtoupper($method)=='GET'){
+            $getData = array_merge($getData,$params);
+        }
+        //生成签名
         $getData['sign'] = $this->createSign($getData);
-
         // 发送请求
-        $response = $this->sendRequest($this->apiUrl, $getData, $method);
+        $response = $this->sendRequest($this->apiUrl, $getData, $params, $method);
         return json_decode($response, true);
     }
 
@@ -101,37 +95,44 @@ class Client
     }
 
     /**
-     * 发送HTTP请求
+     * 发送接口请求（支持GET/POST）
+     * @Author : Yasin
+     *
+     * @param string $url 接口地址（需包含基础路径）
+     * @param array $getData GET请求数据
+     * @param array $postData POST请求数据，空数组表示不使用POST
+     * @param string $method 请求方法，GET或POST
+     *
+     * @return mixed 接口返回的原始数据（建议JSON解码后使用）
      */
-    private function sendRequest(string $apiUrl, array $data, string $method = 'GET')
+    public function sendRequest(string $apiUrl, array $getData, array $postData = [], string $method = 'GET')
     {
         $method = strtoupper($method);
-        if ($method == 'GET') {
-            $apiUrl .= '?' . http_build_query($data);
-        }
-
+        // 构建GET请求URL
+        $apiUrl .= '?'.http_build_query($getData);
+        //初始化
         $curl = curl_init();
+        //设置抓取的url
         curl_setopt($curl, CURLOPT_URL, $apiUrl);
+        //设置头文件的信息作为数据流输出
         curl_setopt($curl, CURLOPT_HEADER, 0);
+        //设置获取的信息以文件流的形式返回，而不是直接输出。
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-        if ($method == 'POST') {
+        //设置post方式提交
+        if ($method == 'POST' && !empty($postData)) {
             curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
         }
+        $data = curl_exec($curl);
 
-        if ($this->debug) {
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        }
-
-        $response = curl_exec($curl);
-
-        if ($response === false) {
-            throw new \RuntimeException('CURL请求失败: ' . curl_error($curl));
+        // 新增执行过程的错误处理说明
+        if ($data === false) {
+            $error = curl_error($curl);
+            curl_close($curl);
+            throw new RuntimeException('CURL请求失败: '.$error);
         }
 
         curl_close($curl);
-        return $response;
+        return $data;
     }
 }
